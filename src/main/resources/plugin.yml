@@ -1,0 +1,12 @@
+name: Cooldowns
+main: net.krinsoft.cooldowns.Cooldowns
+version: 0.5.0
+authors: [krinsdeath]
+
+commands:
+  cooldowns:
+    description: Allows setting of various options for this plugin
+    aliases: [cooldown, cd]
+    usage: |
+      /<command> - displays this menu
+      /<command> [loc|locale] [arg] - sets the user's locale to the specified argument

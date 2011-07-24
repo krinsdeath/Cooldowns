@@ -1,0 +1,34 @@
+# set any value to "null" to disable it entirely.
+plugin:
+  enabled: "Enabled."
+  disabled: "Disabled."
+  language: "American English"
+  locale_not_found: "No such locale exists."
+  locale_changed: "Language changed to American English."
+  help:
+  - '&b/<cmd> &f- &adisplays this help menu'
+  - '&b/<cmd> [loc|locale] [option] &f- &asets your locale to'
+  - '&athe option provided, or lists available locales'
+# warmup localizations
+# <wu> and <warmup> will parse to the total seconds before the command executes
+warmup:
+  commands:
+    _generic_: "You are currently warming up. (&b<wu>&f)"
+# cooldown localizations
+# <cd> and <cooldown> will parse to the total seconds before commands can be used
+# <bd> and <blockdown> will parse the total seconds before blocks can be placed again
+cooldown:
+  commands:
+    _generic_: "You are currently cooling down. (&b<cd>&f)"
+  blocks:
+    _generic_: "You can place blocks again in &b<bd>&f seconds."
+# general localizations
+# <cmd> will parse to the command relevant to the message
+# <label> will parse to the first portion of the command, without the leading /
+# <flag> will parse to the first argument supplied to a command, or null (if none)
+# &0-F will parse as a color code
+command:
+  cancel: "You cancelled the command '&b<cmd>&f'"
+  start: "You begin warming up '&b<cmd>&f' (&b<wu>&f)"
+  cool: "You are now cooling down. (&b<cd>&f)"
+  ready: "You are ready to use commands."
