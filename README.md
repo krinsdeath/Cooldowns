@@ -1,5 +1,7 @@
 Cooldowns
 =========
+Info
+----
 Cooldowns v0.5.0 - Configurable command cooldowns and warmups
 *   By krinsdeath
 *   This code is licensed under the ~don't be a douche~ code.
