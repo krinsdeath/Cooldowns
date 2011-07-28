@@ -31,4 +31,4 @@ command:
   cancel: "You cancelled the command '&b<cmd>&f'"
   start: "You begin warming up '&b<cmd>&f' (&b<wu>&f)"
   cool: "You are now cooling down. (&b<cd>&f)"
-  ready: "You are ready to use '&b<cmd>&f'."
+  ready: "You are ready to use commands."

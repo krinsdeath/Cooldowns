@@ -44,7 +44,7 @@ public class PlayerEvents extends PlayerListener {
             plugin.updatePlayer(player, data);
             return;
         }
-        if (data.getType().equalsIgnoreCase("global") && data.isCooling()) {
+        if (data.isCooling()) {
             // player is cooling down, so tell him he can't do anything
             if (data.hasCommand("cooldown", event.getMessage())) {
                 // player is cooling down and has this command mapped
@@ -55,13 +55,6 @@ public class PlayerEvents extends PlayerListener {
                 return;
             } else {
                 return;
-            }
-        } else if (data.getType().equalsIgnoreCase("local")) {
-            if (data.isCommandCooling(event.getMessage())) {
-                // Player is cooling down that command
-                String cooling = plugin.getLocale(data.getLocale()).getString("cooldown.commands._generic_", "You are currently cooling down. (<cd>)");
-                data.parse(cooling);
-                event.setCancelled(true);
             }
         }
         if (data.isWarming()) {

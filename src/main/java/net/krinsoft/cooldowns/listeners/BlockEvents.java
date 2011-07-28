@@ -28,6 +28,7 @@ public class BlockEvents extends BlockListener {
         if (plugin.getPlayer(player) == null) {
             plugin.addPlayer(player);
         }
+
         CoolPlayer data = plugin.getPlayer(player);
         // get the node for this player's group
         ConfigurationNode blockList = plugin.config.getNode("groups." + data.getGroup() + ".blocks");
