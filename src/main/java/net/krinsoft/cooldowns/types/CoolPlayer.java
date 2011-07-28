@@ -1,5 +1,6 @@
 package net.krinsoft.cooldowns.types;
 
+import java.util.HashMap;
 import net.krinsoft.cooldowns.Cooldowns;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
@@ -32,17 +33,28 @@ public class CoolPlayer {
     private String flag;
     private String label;
 
+    /*
+     * command map
+     */
+    private HashMap<String, Long> commands = new HashMap<String, Long>();
+    private String type;
+    
     public CoolPlayer(Cooldowns instance, Player plyr, String grp) {
         plugin = instance;
         player = plyr;
         name = plyr.getName();
         group = grp;
         locale = plugin.users.getString(name + ".locale", plugin.config.getString("plugin.default_locale", "en_US"));
+        type = plugin.config.getString("groups." + group + ".type", "global");
     }
 
     @Override
     public String toString() {
         return "CoolPlayer{name=" + name + "}";
+    }
+
+    public String getType() {
+        return type;
     }
 
     public boolean isWarming() {
@@ -76,7 +88,7 @@ public class CoolPlayer {
      */
     public boolean schedule(String cmd) {
         this.cmd = cmd;
-        String label = cmd.split(" ")[0].substring(1), flag = "";
+        String label = cmd.split(" ")[0].substring(1).toLowerCase(), flag = "";
         if (cmd.split(" ").length > 1) {
             flag = cmd.split(" ")[1];
         }
@@ -131,10 +143,17 @@ public class CoolPlayer {
     }
 
     public boolean isCooling() {
-        if (cooling) {
+        if (cooling && type.equalsIgnoreCase("global")) {
             if (getCooldown() <= System.currentTimeMillis()) {
                 cooling = false;
                 cooled = true;
+            }
+        }
+        if (type.equalsIgnoreCase("local")) {
+            for (String key : commands.keySet()) {
+                if (commands.get(key) <= System.currentTimeMillis()) {
+                    finishCommand(key);
+                }
             }
         }
         return cooling;
@@ -143,6 +162,13 @@ public class CoolPlayer {
     public void setCooldown(int secs) {
         cooldown = (secs * 1000) + System.currentTimeMillis();
         cooling = true;
+        if (type.equalsIgnoreCase("local")) {
+            if (flag == null) {
+                commands.put(label, cooldown);
+            } else {
+                commands.put(label + "." + flag, cooldown);
+            }
+        }
     }
 
     private long getCooldown() {
@@ -161,7 +187,7 @@ public class CoolPlayer {
     }
 
     public boolean hasCommand(String field, String cmd) {
-        String label = cmd.split(" ")[0].substring(1), flag = "";
+        String label = cmd.split(" ")[0].substring(1).toLowerCase(), flag = "";
         if (cmd.split(" ").length > 1) {
             flag = cmd.split(" ")[1];
         }
@@ -269,5 +295,32 @@ public class CoolPlayer {
     public void help(String name, String line) {
         line = line.replaceAll("<cmd>", name);
         parse(line);
+    }
+
+    private void finishCommand(String key) {
+        commands.remove(key);
+        String msg = plugin.getLocale(locale).getString("commands.ready");
+        msg = msg.replaceAll("<cmd>", "/" + key.replaceAll("\\.", " "));
+        if (key.split("\\.").length > 1) {
+            msg = msg.replaceAll("<label>", key.split("\\.")[0]);
+            msg = msg.replaceAll("<flag>", key.split("\\.")[1]);
+        } else {
+            msg = msg.replaceAll("<label>", key);
+            msg = msg.replaceAll("<flag>", "");
+        }
+        parse(msg);
+    }
+
+    public boolean isCommandCooling(String msg) {
+        String l = msg.split(" ")[0].substring(1), f = "";
+        if (msg.split(" ").length > 1) {
+            f = msg.split(" ")[1];
+        }
+        if (f == null && commands.get(l) != null) {
+            return true;
+        } else if (f != null && commands.get(l + "." + f) != null) {
+            return true;
+        }
+        return false;
     }
 }

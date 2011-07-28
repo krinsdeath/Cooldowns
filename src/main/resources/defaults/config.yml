@@ -21,6 +21,7 @@ groups:
     # prefix applies to messages sent by this plugin to the player, such as status messages
     # it does not change chat settings, and should not interfere with any other plugins
     prefix: '[default] '
+    type: 'global'
     commands:
       warmup:
         # all values specified are in seconds
@@ -34,6 +35,7 @@ groups:
       _all_: 5
   users:
     prefix: '[user] '
+    type: 'global'
     commands:
       warmup:
         home: 2
@@ -52,6 +54,7 @@ groups:
       obsidian: 2
   admins:
     prefix: '[admin] '
+    type: 'local'
     commands:
       warmup:
         kill: 2
