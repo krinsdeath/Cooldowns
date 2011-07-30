@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.0.0 (TODO)
+--------------------
+*   Complete rework of the project, from the ground up
+*   Includes both local and global warmups and cooldowns
+*   More configuration, more stability, more power
+*   Verbose localizations, including custom status messages per command
+
 Version 0.5.0
 -------------
 *   Massive restructuring of the plugin, which included moving it to Maven.

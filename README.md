@@ -2,20 +2,18 @@ Cooldowns
 =========
 Info
 ----
-Cooldowns v0.5.0 - Configurable command cooldowns and warmups
+*Cooldowns v0.5.0* - Configurable command cooldowns and warmups
 
-*   by krinsdeath
+*   by **krinsdeath**
 
->   This code is licensed under the ~don't be a douche~ code.
-
+>   This code is licensed under the *don't be a douche* code.
 >   You may use this code in any way you see fit, except for
+>   monetary gain or business use. If you intend to use or modify
+>   this work, please mention me in the source. This software is
+>   presented as-is, and I give no guarantee as to the stability
+>   or safety of operating it. The source code is freely available.
 
->   monetary gain or business use. Please mention me at the
-
->   very least if you steal my code and leave me penniless.
-
-Cooldowns 0.5.0 is a complete rework of the original project.
-It's easier to configure, more powerful, and in every way, better.
+Cooldowns 0.5.0 is a complete rework of the original project. It's easier to configure, more powerful, and in every way, better.
 
 Features
 --------
