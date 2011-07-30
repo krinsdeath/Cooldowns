@@ -9,32 +9,40 @@ plugin:
   colors: true
 
 groups:
-  # Due to the complexity of micro-managing cooldowns and warmups, I'm offering a temporary
-  # solution, wherein only commands managed by my plugin are warmed or cooled, and all warmups
-  # and cooldowns thereof are global
+  # -----------------
   default:
     # prefix applies to messages sent by this plugin to the player, such as status messages
     # it does not change chat settings, and should not interfere with any other plugins
     prefix: '[default] '
+    interrupts:
+      movement: true
+      damage: true
+    globals:
+      cooldowns: true
+      warmups: true
+    # _all_ will match all commands (for a root node), or all arguments for a sub-node
+    # _self_ will match the command sender's name
+    # all values specified are in seconds.
     commands:
       warmup:
-        # all values specified are in seconds
-        # I'm also providing a few convenience keys, such as _all_
-        # _all_ matches all commands, and applies the warmup/cooldown specified
-        # _self_ matches the command sender's name, which could be used for limiting /give (as an example)
         _all_: 5
       cooldown:
         _all_: 5
     blocks:
       _all_: 5
+  # -----------------
   users:
     prefix: '[user] '
+    interrupts:
+      movement: true
+      damage: true
+    globals:
+      cooldowns: true
+      warmups: true
     commands:
       warmup:
         home: 2
         warp:
-          # you may specify the first argument of the command, and it will apply cooldowns
-          # to only arguments that have been set in this config
           home: 2
           _all_: 2
       cooldown:
@@ -42,11 +50,17 @@ groups:
         warp:
           home: 60
           _all_: 120
-      # blocks can contain any material you see fit to limit, but will only apply if block_limiter is true
     blocks:
       obsidian: 2
+  # -----------------
   admins:
     prefix: '[admin] '
+    interrupts:
+      movement: false
+      damage: false
+    globals:
+      cooldowns: true
+      warmups: true
     commands:
       warmup:
         kill: 2

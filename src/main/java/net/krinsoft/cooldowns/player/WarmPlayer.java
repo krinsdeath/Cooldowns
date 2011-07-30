@@ -2,10 +2,11 @@ package net.krinsoft.cooldowns.player;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.interfaces.ICommand;
+import net.krinsoft.cooldowns.interfaces.IPlayer;
+import net.krinsoft.cooldowns.util.Messages;
 import org.bukkit.util.config.ConfigurationNode;
 
 /**
@@ -13,61 +14,10 @@ import org.bukkit.util.config.ConfigurationNode;
  * @author krinsdeath
  */
 
-public class WarmPlayer implements Serializable {
+public class WarmPlayer implements Serializable, IPlayer {
 	// version ID
 	private final static long serialVersionUID = 119393L;
-
-	// ------- //
-	// STATICS //
-	// ------- //
-
-	/**
-	 * A HashMap containing key:value pairs of players to their warmup info
-	 */
-	protected static HashMap<String, WarmPlayer> players = new HashMap<String, WarmPlayer>();
-	/**
-	 * A list of all currently warming players
-	 */
-	protected static List<String> warmers = new ArrayList<String>();
-
-	/**
-	 * Fetches a list of all players' warmup data.
-	 * @return
-	 * The list of players.
-	 */
-	public static List<WarmPlayer> getWarmingPlayers() {
-		List<WarmPlayer> tmp = new ArrayList<WarmPlayer>();
-		for (String key : warmers) {
-			tmp.add(players.get(key));
-		}
-		if (tmp.size() < 1) { tmp = null; }
-		return tmp;
-	}
-
-	/**
-	 * Gets the warmup data for the specified player
-	 * @param player
-	 * The player to fetch
-	 * @return
-	 * the data
-	 */
-	public static WarmPlayer getPlayer(String player) {
-		if (players.containsKey(player)) {
-			return players.get(player);
-		} else {
-			return null;
-		}
-	}
-
-	public static boolean addPlayer(String player) {
-		if (players.containsKey(player)) {
-			return false;
-		} else {
-			WarmPlayer guy = new WarmPlayer(player);
-			players.put(player, guy);
-			return true;
-		}
-	}
+	public static List<String> warmers = new ArrayList<String>();
 
 	private class WarmCommand implements ICommand {
 		private String cmd;
@@ -126,6 +76,8 @@ public class WarmPlayer implements Serializable {
 	 * The player's warmup status
 	 */
 	private boolean done;
+	private boolean global;
+	private boolean warming;
 	/**
 	 * A list of all currently warming commands on this player.
 	 */
@@ -134,6 +86,9 @@ public class WarmPlayer implements Serializable {
 	public WarmPlayer(String player) {
 		name = player;
 		group = Cooldowns.getGroup(player);
+		global = Cooldowns.getGlobal(group, "warmups");
+		locale = "en_US";
+		System.out.println("WarmPlayer{name=" + name + ",group=" + group + "} created.");
 	}
 
 	/**
@@ -145,12 +100,13 @@ public class WarmPlayer implements Serializable {
 		for (WarmCommand wc : commands) {
 			if (wc.getStatus()) {
 				msg = loc;
-				msg = msg.replaceAll("<cmd>|<command>", wc.getHandle());
-				msg = msg.replaceAll("<label>", wc.label);
-				msg = msg.replaceAll("<flag>", wc.flag);
-				msg = msg.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
+				msg = Messages.COMMAND.matcher(msg).replaceAll(wc.getHandle());
+				msg = Messages.LABEL.matcher(msg).replaceAll(wc.label);
+				msg = Messages.FLAG.matcher(msg).replaceAll(wc.flag);
+				msg = Messages.COLOR.matcher(msg).replaceAll("\u00A7$1");
 				Cooldowns.getPlayer(name).sendMessage(msg);
 				commands.remove(wc);
+				Cooldowns.getPlayer(name).chat(wc.getCommand());
 			} else {
 				continue;
 			}
@@ -161,76 +117,88 @@ public class WarmPlayer implements Serializable {
 	}
 
 	public boolean addCommand(String msg) {
-		if (!isDone()) {
-			String label = msg.split(" ")[0].substring(1), flag = "";
-			if (msg.split(" ").length > 1) {
-				flag = msg.split(" ")[1];
-			}
-			String key = getCommandKey(label, flag);
-			if (key == null) { return false; }
-			ConfigurationNode node = Cooldowns.getCommandNode(group, "warmup");
-			int warm = node.getInt(key, 0);
-			if (warm > 0) {
-				String loc = Cooldowns.getLocale(locale).getString("warmup.commands._generic_", "You are currently warming up '<cmd>'");
-				String tmp = "";
-				int wu = 0;
-				for (WarmCommand wc : commands) {
-					if (wc.getHandle().equalsIgnoreCase(("/" + label + " " + flag).trim())) {
-						tmp = loc;
-						wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
-						tmp = tmp.replaceAll("<cmd>|<command>", wc.getHandle());
-						tmp = tmp.replaceAll("<label>", wc.label);
-						tmp = tmp.replaceAll("<flag>", wc.flag);
-						tmp = tmp.replaceAll("<cd>|<cooldown>", "" + wu);
-						tmp = tmp.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
-						Cooldowns.getPlayer(name).sendMessage(tmp);
-						return false;
-					}
-				}
-				commands.add(new WarmCommand(label, flag, warm, msg));
-				if (!warmers.contains(name)) {
-					warmers.add(name);
-				}
-				return true;
-			}
-			return false;
-		} else {
+		if (global && done) {
 			done = false;
 			return false;
 		}
-	}
-
-	public void cancelCommand() {
-		String loc = Cooldowns.getLocale(locale).getString("command.cancel", "You cancelled the command '<cmd>'");
-		String tmp = "";
-		int wu = 0;
-		for (WarmCommand wc : commands) {
-			wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
-			tmp = tmp.replaceAll("<cmd>|<command>", wc.getHandle());
-			tmp = tmp.replaceAll("<label>", wc.label);
-			tmp = tmp.replaceAll("<flag>", wc.flag);
-			tmp = tmp.replaceAll("<cd>|<cooldown>", "" + wu);
-			tmp = tmp.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
-			Cooldowns.getPlayer(name).sendMessage(tmp);
-			commands.remove(wc);
-			return;
-		}
-	}
-
-	public boolean isWarming(String msg) {
+		// split the message up for searching
 		String label = msg.split(" ")[0].substring(1), flag = "";
 		if (msg.split(" ").length > 1) {
 			flag = msg.split(" ")[1];
 		}
-		for (WarmCommand wc : commands) {
-			if (wc.getHandle().equalsIgnoreCase(("/" + label + " " + flag).trim())) {
-				return true;
+		String key = getCommandKey(label, flag);
+		if (key == null) { return false; }
+		ConfigurationNode node = Cooldowns.getCommandNode(group, "warmup");
+		int warm = node.getInt(key, 0);
+		// check if the command has a warmup
+		if (warm > 0) {
+			// build a base string
+			String loc = Cooldowns.getLocale(locale).getString("warmup.commands._generic_", "You are currently warming up '<cmd>'");
+			String tmp = "";
+			int wu = 0;
+			for (WarmCommand wc : commands) {
+				if (global) {
+					cancelCommand(msg);
+					return false;
+				}
+				if (wc.getCommand().equalsIgnoreCase(msg)) {
+					tmp = loc;
+					wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
+					tmp = Messages.COMMAND.matcher(tmp).replaceAll(wc.getHandle());
+					tmp = Messages.LABEL.matcher(tmp).replaceAll(wc.label);
+					tmp = Messages.FLAG.matcher(tmp).replaceAll(wc.flag);
+					tmp = Messages.WARMUP.matcher(tmp).replaceAll(""+wu);
+					tmp = Messages.COLOR.matcher(tmp).replaceAll("\u00A7$1");
+					Cooldowns.getPlayer(name).sendMessage(tmp);
+					return false;
+				}
 			}
+			commands.add(new WarmCommand(label, flag, warm, msg));
+			if (!warmers.contains(name)) {
+				warmers.add(name);
+			}
+			return true;
 		}
 		return false;
 	}
 
-	public String getCommandKey(String label, String flag) {
+	public void cancelCommand(String msg) {
+		String loc = Cooldowns.getLocale(locale).getString("command.cancel", "You cancelled the command '<cmd>'");
+		String tmp = "";
+		int wu = 0;
+		for (WarmCommand wc : commands) {
+			if (wc.getCommand().equalsIgnoreCase(msg)) {
+				wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
+				tmp = Messages.COMMAND.matcher(tmp).replaceAll(wc.getHandle());
+				tmp = Messages.LABEL.matcher(tmp).replaceAll(wc.label);
+				tmp = Messages.FLAG.matcher(tmp).replaceAll(wc.flag);
+				tmp = Messages.WARMUP.matcher(tmp).replaceAll(""+wu);
+				tmp = Messages.COLOR.matcher(tmp).replaceAll("\u00A7$1");
+				Cooldowns.getPlayer(name).sendMessage(tmp);
+				if (global) {
+					commands.clear();
+				} else {
+					commands.remove(wc);
+				}
+				return;
+			}
+		}
+	}
+
+	public boolean isWarming(String msg) {
+		if (global && warming) {
+			return true;
+		} else {
+			for (WarmCommand wc : commands) {
+				if (wc.getCommand().equalsIgnoreCase(msg)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
+	private String getCommandKey(String label, String flag) {
 		ConfigurationNode node = Cooldowns.getGroupNode(group, "commands.warmup");
 		// check for the label normally
 		if (node.getKeys().contains(label)) {
@@ -265,5 +233,10 @@ public class WarmPlayer implements Serializable {
 	public boolean isDone() {
 		return done;
 	}
-	
+
+	@Override
+	public CoolPlayer getOtherHalf() {
+		return PlayerManager.getCoolPlayer(name);
+	}
+
 }

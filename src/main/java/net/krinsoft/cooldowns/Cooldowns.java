@@ -2,11 +2,14 @@ package net.krinsoft.cooldowns;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedList;
+import net.krinsoft.cooldowns.interfaces.IPlayer;
 import net.krinsoft.cooldowns.listeners.CommandListener;
 import net.krinsoft.cooldowns.listeners.EntityListener;
 import net.krinsoft.cooldowns.listeners.PlayerListener;
-import net.krinsoft.cooldowns.player.CoolPlayer;
 import net.krinsoft.cooldowns.util.CoolLogger;
+import net.krinsoft.cooldowns.util.CoolTimer;
+import net.krinsoft.cooldowns.util.Persister;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,6 +29,7 @@ import org.bukkit.util.config.ConfigurationNode;
 public class Cooldowns extends JavaPlugin {
 	// logger
 	protected static CoolLogger log = new CoolLogger();
+	protected static HashMap<String, LinkedList<IPlayer>> players = new HashMap<String, LinkedList<IPlayer>>();
 
 	public static CoolLogger getLogger() {
 		return log;
@@ -67,7 +71,9 @@ public class Cooldowns extends JavaPlugin {
 		settings = new Settings(this);
 
 		// load the players
-		CoolPlayer.load();
+		Persister.load();
+
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new CoolTimer(), 20, 20);
 
 		// we're done!
 		log.info("Enabled.");
@@ -75,7 +81,8 @@ public class Cooldowns extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		CoolPlayer.save();
+		Persister.save();
+		getServer().getScheduler().cancelTasks(this);
 		log.info("Disabled.");
 	}
 
@@ -159,5 +166,9 @@ public class Cooldowns extends JavaPlugin {
 
 	public static ConfigurationNode getGroupNode(String group, String string) {
 		return config.getNode("groups." + group + "." + string);
+	}
+
+	public static boolean getGlobal(String group, String key) {
+		return config.getBoolean("groups." + group + ".globals." + key, true);
 	}
 }

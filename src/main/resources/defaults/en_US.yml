@@ -14,10 +14,6 @@ plugin:
 warmup:
   commands:
     _generic_: "You are currently warming up. (&b<wu>&f)"
-# cooldown localizations
-# <cd> and <cooldown> will parse to the total seconds before commands can be used
-# <cmd>, <label> and <flag> will all parse to values as well.
-# <bd> and <blockdown> will parse the total seconds before blocks can be placed again
 cooldown:
   commands:
     _generic_: "You are currently cooling down. (&b<cd>&f)"

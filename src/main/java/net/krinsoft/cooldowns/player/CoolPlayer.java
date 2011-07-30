@@ -1,11 +1,5 @@
 package net.krinsoft.cooldowns.player;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +7,8 @@ import java.util.List;
 
 import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.interfaces.ICommand;
+import net.krinsoft.cooldowns.interfaces.IPlayer;
+import net.krinsoft.cooldowns.util.Messages;
 import org.bukkit.util.config.ConfigurationNode;
 
 /**
@@ -20,68 +16,10 @@ import org.bukkit.util.config.ConfigurationNode;
  * @author krinsdeath
  */
 
-public class CoolPlayer implements Serializable {
+public class CoolPlayer implements Serializable, IPlayer {
 	// version ID
 	private final static long serialVersionUID = 11932L;
-
-	// ------- //
-	// STATICS //
-	// ------- //
-
-	/**
-	 * A HashMap containing key:value pairs of player names to their cooldown data
-	 */
-	protected static HashMap<String, CoolPlayer> players = new HashMap<String, CoolPlayer>();
-	/**
-	 * A list of all currently cooling players
-	 */
 	protected static List<String> coolers = new ArrayList<String>();
-
-	/**
-	 * Retrieves a list of all cooling players
-	 * @return
-	 * A list of players, or null
-	 */
-	public static List<CoolPlayer> getCoolingPlayers() {
-		List<CoolPlayer> tmp = new ArrayList<CoolPlayer>();
-		for (String key : coolers) {
-			tmp.add(players.get(key));
-		}
-		if (tmp.size() < 1) { tmp = null; }
-		return tmp;
-	}
-
-	/**
-	 * Retrieves the specified player
-	 * @param player
-	 * The player to fetch
-	 * @return
-	 * the player, or null
-	 */
-	public static CoolPlayer getPlayer(String player) {
-		if (players.containsKey(player)) {
-			return players.get(player);
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Adds a player to the currently cooling list
-	 * @param player
-	 * The player to add
-	 * @return
-	 * true if the player is added, false otherwise
-	 */
-	public static boolean addPlayer(String player) {
-		if (players.containsKey(player)) {
-			return false;
-		} else {
-			CoolPlayer guy = new CoolPlayer(player);
-			players.put(player, guy);
-			return true;
-		}
-	}
 
 	private class CoolCommand implements ICommand {
 		private String command;
@@ -143,14 +81,20 @@ public class CoolPlayer implements Serializable {
 	 */
 	private List<CoolCommand> commands = new ArrayList<CoolCommand>();
 
+	private boolean global;
+	private boolean cooling;
+
 	/**
 	 * Constructs a new instance of CoolPlayer
 	 * @param player
 	 * A string representing the player's name
 	 */
 	public CoolPlayer(String player) {
-		this.name = player;
-		this.group = Cooldowns.getGroup(player);
+		name = player;
+		group = Cooldowns.getGroup(player);
+		global = Cooldowns.getGlobal(group, "cooldowns");
+		locale = "en_US";
+		System.out.println("CoolPlayer{name=" + name + ",group=" + group + "} created.");
 	}
 
 	/**
@@ -162,10 +106,10 @@ public class CoolPlayer implements Serializable {
 		for (CoolCommand cc : commands) {
 			if (cc.getStatus()) {
 				msg = loc;
-				msg = msg.replaceAll("<cmd>|<command>", cc.getHandle());
-				msg = msg.replaceAll("<label>", cc.label);
-				msg = msg.replaceAll("<flag>", cc.flag);
-				msg = msg.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
+				msg = Messages.COMMAND.matcher(msg).replaceAll(cc.getHandle());
+				msg = Messages.LABEL.matcher(msg).replaceAll(cc.label);
+				msg = Messages.FLAG.matcher(msg).replaceAll(cc.flag);
+				msg = Messages.COLOR.matcher(msg).replaceAll("\u00A7$1");
 				Cooldowns.getPlayer(name).sendMessage(msg);
 				commands.remove(cc);
 			} else {
@@ -198,14 +142,14 @@ public class CoolPlayer implements Serializable {
 			String tmp = "";
 			int cd = 0;
 			for (CoolCommand cc : commands) {
-				if (cc.getHandle().equalsIgnoreCase(("/" + label + " " + flag).trim())) {
+				if (cc.getCommand().equalsIgnoreCase(msg)) {
 					tmp = loc;
 					cd = (int) ((cc.cooldown - System.currentTimeMillis()) / 1000);
-					tmp = tmp.replaceAll("<cmd>|<command>", cc.getHandle());
-					tmp = tmp.replaceAll("<label>", cc.label);
-					tmp = tmp.replaceAll("<flag>", cc.flag);
-					tmp = tmp.replaceAll("<cd>|<cooldown>", "" + cd);
-					tmp = tmp.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
+					tmp = Messages.COMMAND.matcher(tmp).replaceAll(cc.getHandle());
+					tmp = Messages.LABEL.matcher(tmp).replaceAll(cc.label);
+					tmp = Messages.FLAG.matcher(tmp).replaceAll(cc.flag);
+					tmp = Messages.COOLDOWN.matcher(tmp).replaceAll(""+cd);
+					tmp = Messages.COLOR.matcher(tmp).replaceAll("\u00A7$1");
 					Cooldowns.getPlayer(name).sendMessage(tmp);
 					return false;
 				}
@@ -219,7 +163,7 @@ public class CoolPlayer implements Serializable {
 		return false;
 	}
 
-	public String getCommandKey(String label, String flag) {
+	private String getCommandKey(String label, String flag) {
 		ConfigurationNode node = Cooldowns.getGroupNode(group, "commands.cooldown");
 		// check for the label normally
 		if (node.getKeys().contains(label)) {
@@ -251,57 +195,27 @@ public class CoolPlayer implements Serializable {
 		return null;
 	}
 
+	public boolean isCooling(String msg) {
+		if (global && cooling) {
+			return true;
+		} else {
+			for (CoolCommand cmd : commands) {
+				if (cmd.getCommand().equalsIgnoreCase(msg)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "CoolPlayer{name=" + name + "}";
 	}
 
-	/**
-	 * Saves the Synced Chests to disk
-	 */
-	public static void save() {
-		FileOutputStream file = null;
-		ObjectOutputStream out = null;
-		File tmp = new File("plugins/Cooldowns/users.dat");
-		try {
-			if (!tmp.exists()) {
-				tmp.getParentFile().mkdirs();
-				tmp.createNewFile();
-			}
-			if (tmp.length() > 0) {
-				tmp.delete();
-				tmp.createNewFile();
-			}
-			file = new FileOutputStream(tmp);
-			out = new ObjectOutputStream(file);
-			out.writeObject(players);
-			out.close();
-		} catch (IOException e) {
-		}
+	@Override
+	public WarmPlayer getOtherHalf() {
+		return PlayerManager.getWarmPlayer(name);
 	}
 
-	/**
-	 * Loads the Synced Chests from disk
-	 * @param plugin
-	 * Sets up a static reference for the Synced Chests to use (for logging)
-	 */
-	public static void load() {
-		HashMap<String, CoolPlayer> list = null;
-		FileInputStream file = null;
-		ObjectInputStream in = null;
-		File tmp = new File("plugins/Cooldowns/users.dat");
-		try {
-			if (!tmp.exists()) {
-				tmp.getParentFile().mkdirs();
-				tmp.createNewFile();
-			}
-			file = new FileInputStream(tmp);
-			in = new ObjectInputStream(file);
-			list = (HashMap<String, CoolPlayer>) in.readObject();
-			in.close();
-		} catch (IOException e) {
-		} catch (ClassNotFoundException e) {
-		}
-		players = list;
-	}
 }

@@ -2,6 +2,7 @@ package net.krinsoft.cooldowns.listeners;
 
 import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.player.CoolPlayer;
+import net.krinsoft.cooldowns.player.PlayerManager;
 import net.krinsoft.cooldowns.player.WarmPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -23,55 +24,63 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 			return;
 		}
 		Player player = event.getPlayer();
-		if (CoolPlayer.getPlayer(player.getName()) != null) {
-			CoolPlayer.addPlayer(player.getName());
-		}
-		if (WarmPlayer.getPlayer(player.getName()) != null) {
-			WarmPlayer.addPlayer(player.getName());
+		if (!PlayerManager.getPlayer(player.getName())) {
+			PlayerManager.addPlayer(player.getName());
 		}
 		// tries to schedule the command for warmup
 		// returns true if the command is scheduled, else
 		// false if the player is done warming up
 		// false if the player doesn't have this command mapped for warmup
 		// false if this command is currently warming up
-		WarmPlayer w = WarmPlayer.getPlayer(player.getName());
+		WarmPlayer w = PlayerManager.getWarmPlayer(player.getName());
+		CoolPlayer c = PlayerManager.getCoolPlayer(player.getName());
+		if (c.isCooling(event.getMessage())) {
+			// this command is cooling
+			// player might have globals: true
+			// for now, we assume true
+			event.setCancelled(true);
+			return;
+		}
+		if (w.isWarming(event.getMessage())) {
+			// this command is warming
+			// player might have globals: true
+			// for now, we assume true
+			event.setCancelled(true);
+			return;
+		}
+
+		// player is not warming or cooling (for this command)
+		// attempt to schedule the command
+		// returns true if the command is scheduled
+		// returns false otherwise (no matter the reason)
 		if (w.addCommand(event.getMessage())) {
-			// command was successfully scheduled
 			event.setCancelled(true);
 			return;
 		} else {
-			CoolPlayer c = CoolPlayer.getPlayer(player.getName());
-			if (w.isWarming(event.getMessage())) {
-				// player was warming this command
+			if (c.addCommand(event.getMessage())) {
 				event.setCancelled(true);
 				return;
-			}
-			// check if he's done warming up
-			if (w.isDone()) {
-				// player was done warming up
-				if (c.addCommand(event.getMessage())) {
-					// player finished warming up, and the command is now cooling down
-					return;
-				} else {
-					// player had no cooldown mapped for this command
-					return;
-				}
+			} else {
+				return;
 			}
 		}
 	}
 
 	@Override
 	public void onPlayerJoin(PlayerJoinEvent event) {
-
+		if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
+			PlayerManager.addPlayer(event.getPlayer().getName());
+			PlayerManager.setOnline(event.getPlayer());
+		}
 	}
 
 	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
-
+		PlayerManager.setOffline(event.getPlayer());
 	}
 
 	@Override
 	public void onPlayerKick(PlayerKickEvent event) {
-
+		PlayerManager.setOffline(event.getPlayer());
 	}
 }
