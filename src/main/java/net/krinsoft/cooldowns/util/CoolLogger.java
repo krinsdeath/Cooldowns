@@ -2,7 +2,6 @@ package net.krinsoft.cooldowns.util;
 
 import java.util.logging.Logger;
 import net.krinsoft.cooldowns.Cooldowns;
-import org.bukkit.ChatColor;
 
 /**
  *
@@ -10,55 +9,88 @@ import org.bukkit.ChatColor;
  */
 
 public class CoolLogger {
-    private final Cooldowns plugin;
-    private String prefix;
-    private final Logger log;
+	private enum Level {
+		INFO(0),
+		WARN(1),
+		SEVERE(2);
 
-    public CoolLogger(Cooldowns instance) {
-        plugin = instance;
-        log = plugin.getServer().getLogger();
-    }
+		private final int level;
+		Level(int lv) {
+			level = lv;
+		}
+	}
+	
+	private Cooldowns plugin;
+	private final static Logger LOGGER = Logger.getLogger("Cooldowns");
+	private static String PREFIX;
 
-    public void info(String msg) {
-        if (plugin.config != null) {
-            prefix = plugin.config.getString("plugin.prefix", "[" + plugin.getDescription().getFullName() + "] ");
-        } else {
-            prefix = "[" + plugin.getDescription().getFullName() + "] ";
-        }
-        if (System.getProperty("os.name").contains("Windows")) {
-            msg = prefix + msg;
-        } else {
-            if (plugin.config != null && plugin.config.getBoolean("plugin.colors", true)) {
-                msg = prefix + ChatColor.GREEN + msg;
-            } else {
-                msg = prefix + msg;
-            }
-        }
-        msg = msg.replaceAll("<fullname>", plugin.getDescription().getFullName());
-        msg = msg.replaceAll("<shortname>", plugin.getDescription().getName());
-        msg = msg.replaceAll("<version>", plugin.getDescription().getVersion());
-        log.info(msg);
-    }
+	public CoolLogger() {
+	}
 
-    public void warn(String msg) {
-        if (plugin.config != null) {
-            prefix = plugin.config.getString("plugin.prefix", "[" + plugin.getDescription().getFullName() + "] ");
-        } else {
-            prefix = "[" + plugin.getDescription().getFullName() + "] ";
-        }
-        if (System.getProperty("os.name").contains("Windows")) {
-            msg = prefix + msg;
-        } else {
-            if (plugin.config != null && plugin.config.getBoolean("plugin.colors", true)) {
-                msg = prefix + ChatColor.RED + msg;
-            } else {
-                msg = prefix + msg;
-            }
-        }
-        msg = msg.replaceAll("<fullname>", plugin.getDescription().getFullName());
-        msg = msg.replaceAll("<shortname>", plugin.getDescription().getName());
-        msg = msg.replaceAll("<version>", plugin.getDescription().getVersion());
-        log.warning(msg);
-    }
-    
+	public void setParent(Cooldowns aThis) {
+		plugin = aThis;
+	}
+
+	/**
+	 * Logs a standard message [INFO]
+	 * @param msg
+	 * the message
+	 */
+	public void info(String msg) {
+		PREFIX = validate(Level.INFO);
+		PREFIX = PREFIX.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
+		msg = PREFIX + msg;
+		LOGGER.info(msg);
+	}
+
+	/**
+	 * Logs a warning [WARNING]
+	 * @param msg
+	 * the message
+	 */
+	public void warn(String msg) {
+		PREFIX = validate(Level.WARN);
+		PREFIX = PREFIX.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
+		msg = PREFIX + msg;
+		LOGGER.warning(msg);
+	}
+
+	/**
+	 * Logs a critical error [SEVERE]
+	 * @param msg
+	 * the message
+	 */
+	public void severe(String msg) {
+		PREFIX = validate(Level.SEVERE);
+		PREFIX = PREFIX.replaceAll("&([a-fA-F0-9])", "\u00A7$1");
+		msg = PREFIX + msg;
+		LOGGER.severe(msg);
+	}
+
+	/**
+	 * Returns a string to use as the log prefix
+	 * @param lv
+	 * The level of the message (INFO, WARN, SEVERE)
+	 * @return
+	 * the string
+	 */
+	private String validate(Level lv) {
+		String os = "";
+		try {
+			os = System.getProperty("os.name");
+		} catch (SecurityException e) {
+		} catch (NullPointerException e) {
+		} catch (IllegalArgumentException e) {
+		}
+		if (os.contains("Windows")) {
+			return "[" + plugin.info("name") + "] ";
+		} else {
+			switch (lv) {
+				case INFO:		return "&A[" + plugin.info("name") + "] &F";
+				case WARN:		return "&3[" + plugin.info("name") + "] &F";
+				case SEVERE:	return "&C[" + plugin.info("name") + "] &F";
+			}
+		}
+		return "[" + plugin.info("name") + "] ";
+	}
 }

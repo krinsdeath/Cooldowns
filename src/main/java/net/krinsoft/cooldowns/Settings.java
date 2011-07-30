@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import net.krinsoft.cooldowns.util.CoolLogger;
 import org.bukkit.util.config.Configuration;
 
 /**
@@ -15,14 +14,12 @@ import org.bukkit.util.config.Configuration;
 
 final class Settings {
     private Cooldowns plugin;
-    private CoolLogger log;
 
     private final File dataFolder;
 
-    public Settings(Cooldowns instance) {
-        plugin = instance;
+    public Settings(Cooldowns aThis) {
+        plugin = aThis;
         dataFolder = plugin.getDataFolder();
-        log = plugin.getLogger();
         load();
     }
 
@@ -32,18 +29,18 @@ final class Settings {
         if (tmp.exists()) {
             conf = new Configuration(tmp);
             conf.load();
-            plugin.config = conf;
+            Cooldowns.config = conf;
         }
-        for (String loc : plugin.config.getStringList("plugin.available_locales", Arrays.asList("en_US"))) {
+        for (String loc : Cooldowns.config.getStringList("plugin.available_locales", Arrays.asList("en_US"))) {
             tmp = makeDefault(new File(dataFolder + File.separator + "language", loc + ".yml"));
             if (tmp.exists()) {
-                plugin.addLocale(loc, tmp);
+                Cooldowns.addLocale(loc, tmp);
             }
         }
         tmp = new File(dataFolder, "users.yml");
         conf = new Configuration(tmp);
         conf.load();
-        plugin.users = conf;
+        Cooldowns.users = conf;
     }
 
     public File makeDefault(File file) {
@@ -59,15 +56,15 @@ final class Settings {
                     while ((len = in.read(buffer)) > 0) {
                         out.write(buffer, 0, len);
                     }
-                    log.info("Successfully created " + file.getName());
+                    Cooldowns.getLogger().info("Successfully created " + file.getName());
                 } catch (IOException e) {
-                    log.warn("Error: " + e);
+                    Cooldowns.getLogger().warn("Error: " + e);
                 } finally {
                     try {
                         in.close();
                         out.close();
                     } catch (IOException e) {
-                        log.warn("Error: " + e);
+                        Cooldowns.getLogger().warn("Error: " + e);
                     }
                 }
             }

@@ -3,15 +3,10 @@ plugin:
   worlds:
     - 'world'
     - 'world_nether'
-  # enter the desired log prefix here (note: a default prefix is used for the initial startup)
-  # <fullname> will evaluate to Cooldowns v<version>
-  prefix: '[<fullname>] '
   default_locale: 'en_US'
   available_locales: [en_US]
   # colors: true will enable logging in color (this will only work on non-windows platforms)
   colors: true
-  # block_limiter: true will enable a block placement cooldown
-  block_limiter: false
 
 groups:
   # Due to the complexity of micro-managing cooldowns and warmups, I'm offering a temporary

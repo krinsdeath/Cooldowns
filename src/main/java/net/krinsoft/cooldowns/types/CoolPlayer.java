@@ -78,7 +78,7 @@ public class CoolPlayer {
         this.cmd = cmd;
         String label = cmd.split(" ")[0].substring(1).toLowerCase(), flag = "";
         if (cmd.split(" ").length > 1) {
-            flag = cmd.split(" ")[1];
+            flag = cmd.split(" ")[1].toLowerCase();
         }
         if (flag.equalsIgnoreCase(name)) { flag = "_self_"; }
         ConfigurationNode node = plugin.config.getNode("groups." + group + ".commands.warmup");
@@ -163,7 +163,7 @@ public class CoolPlayer {
     public boolean hasCommand(String field, String cmd) {
         String label = cmd.split(" ")[0].substring(1).toLowerCase(), flag = "";
         if (cmd.split(" ").length > 1) {
-            flag = cmd.split(" ")[1];
+            flag = cmd.split(" ")[1].toLowerCase();
         }
         if (flag.equalsIgnoreCase(name)) { flag = "_self_"; }
         ConfigurationNode node = plugin.config.getNode("groups." + group + ".commands." + field);
