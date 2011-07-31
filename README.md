@@ -22,4 +22,3 @@ Features
 *   Completely configurable cooldowns for any command your server uses
 *   Multi-world friendly
 *   Localizations
-*   Customizable warm up periods for commands

@@ -1,0 +1,80 @@
+plugin:
+  # put the worlds you want to manage cooldowns and warmups in here
+  worlds:
+    - 'world'
+    - 'world_nether'
+  default_locale: 'en_US'
+  available_locales: [en_US]
+  # colors: true will enable logging in color (this will only work on non-windows platforms)
+  colors: true
+
+groups:
+  # -----------------
+  default:
+    # prefix applies to messages sent by this plugin to the player, such as status messages
+    # it does not change chat settings, and should not interfere with any other plugins
+    prefix: '[default] '
+    interrupts:
+      movement: true
+      damage: true
+      command: true
+    globals:
+      cooldowns: true
+      warmups: true
+    # _all_ will match all commands (for a root node), or all arguments for a sub-node
+    # _self_ will match the command sender's name
+    # all values specified are in seconds.
+    commands:
+      warmup:
+        _all_: 5
+      cooldown:
+        _all_: 5
+    blocks:
+      _all_: 5
+  # -----------------
+  users:
+    prefix: '[user] '
+    interrupts:
+      movement: true
+      damage: true
+      command: true
+    globals:
+      cooldowns: true
+      warmups: true
+    commands:
+      warmup:
+        home: 2
+        warp:
+          home: 2
+          _all_: 2
+      cooldown:
+        home: 60
+        warp:
+          home: 60
+          _all_: 120
+    blocks:
+      obsidian: 2
+  # -----------------
+  admins:
+    prefix: '[admin] '
+    interrupts:
+      movement: false
+      damage: false
+      command: true
+    globals:
+      cooldowns: true
+      warmups: true
+    commands:
+      warmup:
+        kill: 2
+        tp:
+          _self_: 2
+          _all_: 2
+        time: 2
+      cooldown:
+        kill: 5
+        tp:
+          _self_: 60
+          _all_: 120
+        time: 5
+    blocks:

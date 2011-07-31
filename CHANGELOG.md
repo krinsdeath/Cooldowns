@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 1.0.0 (TODO)
+Version 1.0.0
 --------------------
 *   Complete rework of the project, from the ground up
 *   Includes both local and global warmups and cooldowns
