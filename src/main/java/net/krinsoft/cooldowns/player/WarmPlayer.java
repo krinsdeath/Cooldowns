@@ -164,7 +164,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 				if (wc.getStatus()) {
 					key = getCommandKey(wc.label, wc.flag);
 					loc = Cooldowns.getLocale(locale).getString("warmup.done." + key, def);
-					msg = loc;
+					msg = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + loc;
 					msg = Messages.COMMAND.matcher(msg).replaceAll(wc.getHandle());
 					msg = Messages.LABEL.matcher(msg).replaceAll(wc.label);
 					msg = Messages.FLAG.matcher(msg).replaceAll(wc.flag);
@@ -215,7 +215,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 					return false;
 				}
 				if (wc.getHandle().equalsIgnoreCase(handle) && command) {
-					tmp = loc;
+					tmp = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + loc;
 					wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
 					tmp = Messages.COMMAND.matcher(tmp).replaceAll(wc.getHandle());
 					tmp = Messages.LABEL.matcher(tmp).replaceAll(wc.label);
@@ -258,7 +258,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 						} else {
 							key = w.label;
 						}
-						tmp = def;
+						tmp = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + def;
 						wu = (int) ((w.warmup - System.currentTimeMillis()) / 1000);
 						tmp = Messages.COMMAND.matcher(tmp).replaceAll(w.getHandle());
 						tmp = Messages.LABEL.matcher(tmp).replaceAll(w.label);
@@ -293,7 +293,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 			WarmCommand wc = commands.get(i);
 			if (wc.getHandle().equalsIgnoreCase(handle)) {
 				if (def != null) {
-					tmp = Cooldowns.getLocale(locale).getString("warmup.cancel." + key, def);
+					tmp = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + Cooldowns.getLocale(locale).getString("warmup.cancel." + key, def);
 					wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
 					tmp = Messages.COMMAND.matcher(tmp).replaceAll(wc.getHandle());
 					tmp = Messages.LABEL.matcher(tmp).replaceAll(wc.label);
@@ -428,7 +428,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 		if (wu == 0) { return; }
 		String def = Cooldowns.getLocale(locale).getString("warmup."+field+"._generic_");
 		if (def == null) { return; }
-		String loc = Cooldowns.getLocale(locale).getString("warmup."+field+"." + key, def);
+		String loc = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + Cooldowns.getLocale(locale).getString("warmup."+field+"." + key, def);
 		loc = Messages.COMMAND.matcher(loc).replaceAll(msg);
 		loc = Messages.LABEL.matcher(loc).replaceAll(label);
 		loc = Messages.FLAG.matcher(loc).replaceAll(flag);

@@ -3,7 +3,6 @@ package net.krinsoft.cooldowns.player;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.interfaces.ICommand;
@@ -116,7 +115,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 				if (cc.getStatus()) {
 					key = getCommandKey(cc.label, cc.flag);
 					loc = Cooldowns.getLocale(locale).getString("cooldown.done." + key, def);
-					msg = loc;
+					msg = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + loc;
 					msg = Messages.COMMAND.matcher(msg).replaceAll(cc.getHandle());
 					msg = Messages.LABEL.matcher(msg).replaceAll(cc.label);
 					msg = Messages.FLAG.matcher(msg).replaceAll(cc.flag);
@@ -162,7 +161,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 			int cd = 0;
 			for (CoolCommand cc : commands) {
 				if (cc.getHandle().equalsIgnoreCase(handle)) {
-					tmp = loc;
+					tmp = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + loc;
 					cd = (int) ((cc.cooldown - System.currentTimeMillis()) / 1000);
 					tmp = Messages.COMMAND.matcher(tmp).replaceAll(cc.getHandle());
 					tmp = Messages.LABEL.matcher(tmp).replaceAll(cc.label);
@@ -282,7 +281,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 		if (cd == 0) { return; }
 		String def = Cooldowns.getLocale(locale).getString("cooldown."+field+"._generic_");
 		if (def == null) { return; }
-		String loc = Cooldowns.getLocale(locale).getString("cooldown."+field+"." + key, def);
+		String loc = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + Cooldowns.getLocale(locale).getString("cooldown."+field+"." + key, def);
 		loc = Messages.COMMAND.matcher(loc).replaceAll(msg);
 		loc = Messages.LABEL.matcher(loc).replaceAll(label);
 		loc = Messages.FLAG.matcher(loc).replaceAll(flag);

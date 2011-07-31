@@ -23,6 +23,8 @@ public class CommandListener implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
+			CoolPlayer c = PlayerManager.getCoolPlayer(player.getName());
+			WarmPlayer w = PlayerManager.getWarmPlayer(player.getName());
 			if (cmd.getName().equalsIgnoreCase("cooldowns")) {
 				if (args.length == 0) {
 					// show status of cooldowns
@@ -36,16 +38,16 @@ public class CommandListener implements CommandExecutor {
 							return true;
 						} else if (args.length > 1) {
 							if (Cooldowns.getLocale(args[1]) != null) {
-								PlayerManager.getCoolPlayer(player.getName()).setLocale(args[1]);
-								PlayerManager.getWarmPlayer(player.getName()).setLocale(args[1]);
+								w.setLocale(args[1]);
+								c.setLocale(args[1]);
 								String loc = PlayerManager.getCoolPlayer(player.getName()).getLocale().getString("plugin.locale_changed");
 								if (loc != null) {
-									player.sendMessage(loc);
+									player.sendMessage(Cooldowns.getConfig().getString("groups."+w.getGroup()+".prefix", "[" + w.getGroup() + "] ") + loc);
 								}
 							} else {
 								String loc = PlayerManager.getCoolPlayer(player.getName()).getLocale().getString("plugin.locale_not_found");
 								if (loc != null) {
-									player.sendMessage(loc);
+									player.sendMessage(Cooldowns.getConfig().getString("groups."+w.getGroup()+".prefix", "[" + w.getGroup() + "] ") + loc);
 								}
 							}
 						}
@@ -69,6 +71,7 @@ public class CommandListener implements CommandExecutor {
 		for (String line : loc) {
 			WarmPlayer w = PlayerManager.getWarmPlayer(player.getName());
 			CoolPlayer c = PlayerManager.getCoolPlayer(player.getName());
+			line = Cooldowns.getConfig().getString("groups."+w.getGroup()+".prefix", "[" + w.getGroup() + "] ") + line;
 			line = line.replaceAll("<movement>", ""+w.getInterrupt("movement"));
 			line = line.replaceAll("<damage>", ""+w.getInterrupt("damage"));
 			line = line.replaceAll("<commands>", ""+w.getInterrupt("command"));
@@ -102,7 +105,9 @@ public class CommandListener implements CommandExecutor {
 		if (loc.isEmpty()) {
 			return;
 		}
+		WarmPlayer w = PlayerManager.getWarmPlayer(player.getName());
 		for (String line : loc) {
+			line = Cooldowns.getConfig().getString("groups."+w.getGroup()+".prefix", "[" + w.getGroup() + "] ") + line;
 			line = line.replaceAll("(<cmd>|<command>)", label);
 			line = Messages.COLOR.matcher(line).replaceAll("\u00A7$1");
 			player.sendMessage(line);
