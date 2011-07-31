@@ -8,6 +8,7 @@ import net.krinsoft.cooldowns.interfaces.IPlayer;
 import net.krinsoft.cooldowns.listeners.CommandListener;
 import net.krinsoft.cooldowns.listeners.EntityListener;
 import net.krinsoft.cooldowns.listeners.PlayerListener;
+import net.krinsoft.cooldowns.player.PlayerManager;
 import net.krinsoft.cooldowns.util.CoolLogger;
 import net.krinsoft.cooldowns.util.CoolTimer;
 import net.krinsoft.cooldowns.util.Persister;
@@ -87,6 +88,7 @@ public class Cooldowns extends JavaPlugin {
 		timer.cancel();
 		Persister.save();
 		getServer().getScheduler().cancelTasks(this);
+		PlayerManager.clean();
 		log.info("Disabled.");
 	}
 

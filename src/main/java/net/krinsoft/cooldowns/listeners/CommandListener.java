@@ -25,7 +25,8 @@ public class CommandListener implements CommandExecutor {
 			Player player = (Player) sender;
 			if (cmd.getName().equalsIgnoreCase("cooldowns")) {
 				if (args.length == 0) {
-					showSetup(player);
+					// show status of cooldowns
+					showStatus(player);
 					return true;
 				} else {
 					if (args[0].equalsIgnoreCase("loc") || args[0].equalsIgnoreCase("locale")) {
@@ -48,9 +49,10 @@ public class CommandListener implements CommandExecutor {
 								}
 							}
 						}
-					} else if (args[0].equalsIgnoreCase("status")) {
-						// show status of cooldowns
-						showStatus(player);
+					} else if (args[0].equalsIgnoreCase("settings") || args[0].equalsIgnoreCase("setup")) {
+						showSetup(player);
+					} else if (args[0].equalsIgnoreCase("help")) {
+						showHelp(player, label);
 					}
 				}
 				return true;
@@ -78,7 +80,6 @@ public class CommandListener implements CommandExecutor {
 	}
 
 	private void showStatus(Player player) {
-		System.out.println("Got to status");
 		CoolPlayer c = PlayerManager.getCoolPlayer(player.getName());
 		c.showCooldowns();
 	}
@@ -93,6 +94,18 @@ public class CommandListener implements CommandExecutor {
 			l = "&a" + line + "&f: " + Cooldowns.getLocale(line).getString("plugin.language");
 			l = Messages.COLOR.matcher(l).replaceAll("\u00A7$1");
 			player.sendMessage(l);
+		}
+	}
+
+	private void showHelp(Player player, String label) {
+		List<String> loc = PlayerManager.getCoolPlayer(player.getName()).getLocale().getStringList("plugin.help", new ArrayList<String>());
+		if (loc.isEmpty()) {
+			return;
+		}
+		for (String line : loc) {
+			line = line.replaceAll("(<cmd>|<command>)", label);
+			line = Messages.COLOR.matcher(line).replaceAll("\u00A7$1");
+			player.sendMessage(line);
 		}
 	}
 }

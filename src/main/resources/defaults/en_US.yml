@@ -6,16 +6,20 @@ plugin:
   locale_not_found: "No such locale exists."
   locale_changed: "Language changed to American English."
   help:
-    - '&b/<cmd> &f- &adisplays this help menu'
-    - '&b/<cmd> [loc|locale] [option] &f- &asets your locale to'
-    - '&athe option provided, or lists available locales'
+    - '&b/<cmd> help &f- &aDisplays this help menu.'
+    - '&b/<cmd> loc [option] &f- &aSets your locale to'
+    - '--- &athe option provided, or lists available locales.'
+    - '&b/<cmd> setup &f- &aShows your settings.'
+    - '&b/<cmd> &f- &aLists your current cooldowns.'
   setup:
-    - 'Your settings: (see also: /cd help)'
-    - '&aLocalization&f: American English (en_US)'
+    - 'Your settings: (American English)'
     - '&aGlobals&f:'
-    - 'Warmups: &b<global_warm>&f ... Cooldowns: &b<global_cool>&f'
+    - '-- Warmups... &a<global_warm>'
+    - '-- Cooldowns... &a<global_cool>'
     - '&aInterrupts&f:'
-    - 'Movement: &b<movement>&f ... Commands: &b<commands>&f ... Damage: &b<damage>&f'
+    - '-- Movement... &a<movement>'
+    - '-- Commands... &a<commands>'
+    - '-- Damage... &a<damage> &f(&cnot implemented&f)'
 
 # set any _generic_ key to null to disable it
 # ------- #
@@ -29,8 +33,9 @@ warmup:
   done:
     _generic_: "You are no longer warming up '&b<cmd>&f'."
   cancel:
-    _generic_: "You cancelled '&b<cmd>&f'..."
-    _movement_: "&cYou moved and cancelled '&b<cmd>&c'..."
+    _generic_: "&cYou cancelled '&3<cmd>&c'..."
+    _movement_: "&cYou moved and cancelled '&3<cmd>&c'..."
+    _damage_: "&cYou took damage, which cancelled '&3<cmd>&c'..."
 
 # --------- #
 # cooldowns #

@@ -29,16 +29,13 @@ public class PlayerManager {
 		for (HashMap<String, IPlayer> item : list) {
 			for (String key : item.keySet()) {
 				if (item.get(key) instanceof WarmPlayer) {
-					System.out.println("Loading WarmPlayers");
 					warm.putAll(item);
 					break;
 				}
 				if (item.get(key) instanceof CoolPlayer) {
-					System.out.println("Loading CoolPlayers");
 					cool.putAll(item);
 					break;
 				}
-				System.out.println("Couldn't match class");
 			}
 		}
 		players.add(warm);
@@ -83,6 +80,13 @@ public class PlayerManager {
 	public static void updatePlayer(WarmPlayer w, CoolPlayer c) {
 		warm.put(w.getName(), w);
 		cool.put(c.getName(), c);
+	}
+
+	public static void clean() {
+		players.clear();
+		warm.clear();
+		cool.clear();
+		online.clear();
 	}
 
 }

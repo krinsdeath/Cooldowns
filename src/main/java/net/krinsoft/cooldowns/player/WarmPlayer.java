@@ -116,6 +116,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 	}
 
 	public boolean getInterrupt(String t) {
+		setInterrupts();
 		if (t.equalsIgnoreCase("movement")) {
 			return movement;
 		} else if (t.equalsIgnoreCase("command")) {
@@ -236,10 +237,16 @@ public class WarmPlayer implements Serializable, IPlayer {
 		return false;
 	}
 
-	public void cancelCommand(boolean flag) {
+	public void cancelCommand(boolean flag, String field) {
 		if (flag) {
-			if (movement) {
-				String def = getLocale().getString("warmup.cancel._movement_");
+			boolean f = false;
+			if (field.equals("_damage_")) {
+				f = damage;
+			} else if (field.equals("_movement_")) {
+				f = movement;
+			}
+			if (f) {
+				String def = getLocale().getString("warmup.cancel." + field);
 				String tmp = "", key = "";
 				int wu = 0;
 				WarmCommand w = null;
@@ -251,7 +258,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 						} else {
 							key = w.label;
 						}
-						tmp = getLocale().getString("warmup.cancel." + key, def);
+						tmp = def;
 						wu = (int) ((w.warmup - System.currentTimeMillis()) / 1000);
 						tmp = Messages.COMMAND.matcher(tmp).replaceAll(w.getHandle());
 						tmp = Messages.LABEL.matcher(tmp).replaceAll(w.label);

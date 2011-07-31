@@ -17,7 +17,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
  */
 
 public class PlayerListener extends org.bukkit.event.player.PlayerListener {
-	private Cooldowns plugin;
 
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
@@ -77,6 +76,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 
 	@Override
 	public void onPlayerMove(PlayerMoveEvent event) {
+		if (event.isCancelled()) { return; }
 		if (!PlayerManager.online().contains(event.getPlayer())) {
 			if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
 				PlayerManager.addPlayer(event.getPlayer().getName());
@@ -85,7 +85,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 		}
 		WarmPlayer w = PlayerManager.getWarmPlayer(event.getPlayer().getName());
 		if (w.locationHasChanged(event.getTo())) {
-			w.cancelCommand(true);
+			w.cancelCommand(true, "_movement_");
 		}
 	}
 
