@@ -6,27 +6,40 @@ plugin:
   locale_not_found: "No such locale exists."
   locale_changed: "Language changed to American English."
   help:
-  - '&b/<cmd> &f- &adisplays this help menu'
-  - '&b/<cmd> [loc|locale] [option] &f- &asets your locale to'
-  - '&athe option provided, or lists available locales'
-# warmup localizations
-# <wu> and <warmup> will parse to the total seconds before the command executes
+    - '&b/<cmd> &f- &adisplays this help menu'
+    - '&b/<cmd> [loc|locale] [option] &f- &asets your locale to'
+    - '&athe option provided, or lists available locales'
+  setup:
+    - 'Your settings: (see also: /cd help)'
+    - '&aLocalization&f: American English (en_US)'
+    - '&aGlobals&f:'
+    - 'Warmups: &b<global_warm>&f ... Cooldowns: &b<global_cool>&f'
+    - '&aInterrupts&f:'
+    - 'Movement: &b<movement>&f ... Commands: &b<commands>&f ... Damage: &b<damage>&f'
+
+# set any _generic_ key to null to disable it
+# ------- #
+# warmups #
+# ------- #
 warmup:
-  commands:
-    _generic_: "You are currently warming up. (&b<wu>&f)"
+  start:
+    _generic_: "'&b<cmd>&f' is now warming up. (&b<wu>&f)"
+  status:
+    _generic_: "'&b<cmd>&f' is warming up. (&b<wu>&f)"
+  done:
+    _generic_: "You are no longer warming up '&b<cmd>&f'."
+  cancel:
+    _generic_: "You cancelled '&b<cmd>&f'..."
+    _movement_: "&cYou moved and cancelled '&b<cmd>&c'..."
+
+# --------- #
+# cooldowns #
+# --------- #
 cooldown:
-  commands:
-    _generic_: "You are currently cooling down. (&b<cd>&f)"
-  blocks:
-    _generic_: "You can place blocks again in &b<bd>&f seconds."
-# general localizations
-# <cmd> will parse to the command relevant to the message
-# <label> will parse to the first portion of the command, without the leading /
-# <flag> will parse to the first argument supplied to a command, or null (if none)
-# &0-F will parse as a color code
-command:
-  cancel: "&CYou cancelled the command '&3<cmd>&f'"
-  start: "You begin warming up '&3<cmd>&f' (&3<wu>&f)"
-  done: "'&3<cmd>&f' is done warming up."
-  cool: "You are now cooling down. (&b<cd>&f)"
-  ready: "You are ready to use commands."
+  start:
+    _generic_: null
+    # "'&b<cmd>&f' is now cooling down. (&b<cd>&f)"
+  status:
+    _generic_: "'&b<cmd>&f' is cooling down. (&b<cd>&f)"
+  done:
+    _generic_: "You are ready to use '&b<cmd>&f' again."

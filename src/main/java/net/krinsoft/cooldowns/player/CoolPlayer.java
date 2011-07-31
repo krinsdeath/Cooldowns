@@ -2,13 +2,15 @@ package net.krinsoft.cooldowns.player;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.interfaces.ICommand;
 import net.krinsoft.cooldowns.interfaces.IPlayer;
 import net.krinsoft.cooldowns.util.Messages;
+import org.bukkit.entity.Player;
+import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
 /**
@@ -19,7 +21,6 @@ import org.bukkit.util.config.ConfigurationNode;
 public class CoolPlayer implements Serializable, IPlayer {
 	// version ID
 	private final static long serialVersionUID = 11932L;
-	protected static List<String> coolers = new ArrayList<String>();
 
 	private class CoolCommand implements ICommand {
 		private String command;
@@ -94,30 +95,41 @@ public class CoolPlayer implements Serializable, IPlayer {
 		group = Cooldowns.getGroup(player);
 		global = Cooldowns.getGlobal(group, "cooldowns");
 		locale = "en_US";
-		System.out.println("CoolPlayer{name=" + name + ",group=" + group + "} created.");
+	}
+
+	public boolean getGlobal() {
+		return global;
 	}
 
 	/**
 	 * Iterates through this player's active commands, and tries to cool them down
 	 */
 	public void update() {
-		String loc = Cooldowns.getLocale(locale).getString("command.ready", "'<cmd>' is ready.");
-		String msg = "";
-		for (CoolCommand cc : commands) {
-			if (cc.getStatus()) {
-				msg = loc;
-				msg = Messages.COMMAND.matcher(msg).replaceAll(cc.getHandle());
-				msg = Messages.LABEL.matcher(msg).replaceAll(cc.label);
-				msg = Messages.FLAG.matcher(msg).replaceAll(cc.flag);
-				msg = Messages.COLOR.matcher(msg).replaceAll("\u00A7$1");
-				Cooldowns.getPlayer(name).sendMessage(msg);
-				commands.remove(cc);
-			} else {
-				continue;
+		List<CoolCommand> tmp = commands;
+		CoolCommand cc = null;
+		synchronized (tmp) {
+			String def = Cooldowns.getLocale(locale).getString("cooldown.done._generic_", "generic cooldown message");
+			String msg = "", loc = "", key = "";
+			if (tmp.isEmpty()) { return; }
+			for (int i = 0; i < tmp.size(); i++) {
+				cc = tmp.get(i);
+				if (cc.getStatus()) {
+					key = getCommandKey(cc.label, cc.flag);
+					loc = Cooldowns.getLocale(locale).getString("cooldown.done." + key, def);
+					msg = loc;
+					msg = Messages.COMMAND.matcher(msg).replaceAll(cc.getHandle());
+					msg = Messages.LABEL.matcher(msg).replaceAll(cc.label);
+					msg = Messages.FLAG.matcher(msg).replaceAll(cc.flag);
+					msg = Messages.COLOR.matcher(msg).replaceAll("\u00A7$1");
+					Cooldowns.getPlayer(name).sendMessage(msg);
+					commands.remove(cc);
+					if (commands.isEmpty()) {
+						cooling = false;
+					}
+				} else {
+					continue;
+				}
 			}
-		}
-		if (commands.size() < 1) {
-			coolers.remove(name);
 		}
 	}
 
@@ -135,14 +147,21 @@ public class CoolPlayer implements Serializable, IPlayer {
 		}
 		String key = getCommandKey(label, flag);
 		if (key == null) { return false; }
+		if (key.split("\\.").length > 1) {
+			flag = key.split("\\.")[1];
+		} else {
+			flag = "";
+		}
+		String handle = ("/" + key.replaceAll("\\.", " ")).trim();
 		ConfigurationNode node = Cooldowns.getCommandNode(group, "cooldown");
 		int cool = node.getInt(key, 0);
 		if (cool > 0) {
-			String loc = Cooldowns.getLocale(locale).getString("cooldown.commands._generic_", "'<cmd>' is currently cooling down. (<cd>)");
+			String def = Cooldowns.getLocale(locale).getString("cooldown.status._generic_", "generic cooldown message");
+			String loc = Cooldowns.getLocale(locale).getString("cooldown.status." + key, def);
 			String tmp = "";
 			int cd = 0;
 			for (CoolCommand cc : commands) {
-				if (cc.getCommand().equalsIgnoreCase(msg)) {
+				if (cc.getHandle().equalsIgnoreCase(handle)) {
 					tmp = loc;
 					cd = (int) ((cc.cooldown - System.currentTimeMillis()) / 1000);
 					tmp = Messages.COMMAND.matcher(tmp).replaceAll(cc.getHandle());
@@ -154,10 +173,8 @@ public class CoolPlayer implements Serializable, IPlayer {
 					return false;
 				}
 			}
+			cooling = true;
 			commands.add(new CoolCommand(label, flag, cool, msg));
-			if (!coolers.contains(name)) {
-				coolers.add(name);
-			}
 			return true;
 		}
 		return false;
@@ -169,6 +186,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 		if (node.getKeys().contains(label)) {
 			// check for sub keys
 			if (node.getKeys(label) != null) {
+				if (flag.length() < 1) { flag = null; }
 				// sub keys found
 				if (node.getKeys(label).contains(flag)) {
 					return label + "." + flag;
@@ -196,21 +214,30 @@ public class CoolPlayer implements Serializable, IPlayer {
 	}
 
 	public boolean isCooling(String msg) {
+		String label = msg.split(" ")[0].substring(1), flag = "";
+		if (msg.split(" ").length > 1) {
+			flag = msg.split(" ")[1];
+		}
+		String key = getCommandKey(label, flag);
+		if (key == null) { return false; }
+		String handle = ("/" + key.replaceAll("\\.", " ")).trim();
 		if (global && cooling) {
+			sendMessage("status", msg);
 			return true;
-		} else {
-			for (CoolCommand cmd : commands) {
-				if (cmd.getCommand().equalsIgnoreCase(msg)) {
-					return true;
-				}
+		}
+		for (CoolCommand cmd : commands) {
+			if (cmd.getHandle().equalsIgnoreCase(handle)) {
+				sendMessage("status", msg);
+				return true;
 			}
 			return false;
 		}
+		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "CoolPlayer{name=" + name + "}";
+		return "CoolPlayer{name=" + name + ",group=" + group + "}";
 	}
 
 	@Override
@@ -218,4 +245,58 @@ public class CoolPlayer implements Serializable, IPlayer {
 		return PlayerManager.getWarmPlayer(name);
 	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getGroup() {
+		return group;
+	}
+
+	@Override
+	public Configuration getLocale() {
+		return Cooldowns.getLocale(locale);
+	}
+
+	@Override
+	public void setLocale(String loc) {
+		locale = loc;
+	}
+
+	public void sendMessage(String field, String msg) {
+		Player p = Cooldowns.getPlayer(name);
+		String label = msg.split(" ")[0].substring(1), flag = "";
+		if (msg.split(" ").length > 1) {
+			flag = msg.split(" ")[1];
+		}
+		String key = getCommandKey(label, flag);
+		String handle = ("/" + key.replaceAll("\\.", " ")).trim();
+		int cd = 0;
+		for (CoolCommand cc : commands) {
+			if (cc.getHandle().equalsIgnoreCase(handle)) {
+				cd = (int) ((cc.cooldown - System.currentTimeMillis()) / 1000);
+			}
+		}
+		if (cd == 0) { return; }
+		String def = Cooldowns.getLocale(locale).getString("cooldown."+field+"._generic_");
+		if (def == null) { return; }
+		String loc = Cooldowns.getLocale(locale).getString("cooldown."+field+"." + key, def);
+		loc = Messages.COMMAND.matcher(loc).replaceAll(msg);
+		loc = Messages.LABEL.matcher(loc).replaceAll(label);
+		loc = Messages.FLAG.matcher(loc).replaceAll(flag);
+		loc = Messages.COOLDOWN.matcher(loc).replaceAll(""+cd);
+		loc = Messages.COLOR.matcher(loc).replaceAll("\u00A7$1");
+		p.sendMessage(loc);
+	}
+
+	public void showCooldowns() {
+		if (commands.isEmpty()) {
+			return;
+		}
+		for (CoolCommand c : commands) {
+			sendMessage("status", c.getCommand());
+		}
+	}
 }

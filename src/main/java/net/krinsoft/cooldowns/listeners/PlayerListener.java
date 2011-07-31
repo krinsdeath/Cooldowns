@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -20,13 +21,21 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+		if (!PlayerManager.online().contains(event.getPlayer())) {
+			if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
+				PlayerManager.addPlayer(event.getPlayer().getName());
+			}
+			PlayerManager.setOnline(event.getPlayer());
+		}
+		if (event.getMessage().equalsIgnoreCase("/sup")) {
+			System.out.println(PlayerManager.online().size() + " players online");
+			event.setCancelled(true);
+			return;
+		}
 		if (event.isCancelled()) {
 			return;
 		}
 		Player player = event.getPlayer();
-		if (!PlayerManager.getPlayer(player.getName())) {
-			PlayerManager.addPlayer(player.getName());
-		}
 		// tries to schedule the command for warmup
 		// returns true if the command is scheduled, else
 		// false if the player is done warming up
@@ -54,22 +63,38 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 		// returns true if the command is scheduled
 		// returns false otherwise (no matter the reason)
 		if (w.addCommand(event.getMessage())) {
+			w.sendMessage("start", event.getMessage());
 			event.setCancelled(true);
-			return;
 		} else {
 			if (c.addCommand(event.getMessage())) {
-				event.setCancelled(true);
-				return;
+				c.sendMessage("start", event.getMessage());
 			} else {
 				return;
 			}
+		}
+		PlayerManager.updatePlayer(w, c);
+	}
+
+	@Override
+	public void onPlayerMove(PlayerMoveEvent event) {
+		if (!PlayerManager.online().contains(event.getPlayer())) {
+			if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
+				PlayerManager.addPlayer(event.getPlayer().getName());
+			}
+			PlayerManager.setOnline(event.getPlayer());
+		}
+		WarmPlayer w = PlayerManager.getWarmPlayer(event.getPlayer().getName());
+		if (w.locationHasChanged(event.getTo())) {
+			w.cancelCommand(true);
 		}
 	}
 
 	@Override
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
-			PlayerManager.addPlayer(event.getPlayer().getName());
+		if (!PlayerManager.online().contains(event.getPlayer())) {
+			if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
+				PlayerManager.addPlayer(event.getPlayer().getName());
+			}
 			PlayerManager.setOnline(event.getPlayer());
 		}
 	}

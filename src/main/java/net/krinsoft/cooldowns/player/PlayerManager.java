@@ -1,7 +1,6 @@
 package net.krinsoft.cooldowns.player;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,6 +78,11 @@ public class PlayerManager {
 
 	public static List<Player> online() {
 		return online;
+	}
+
+	public static void updatePlayer(WarmPlayer w, CoolPlayer c) {
+		warm.put(w.getName(), w);
+		cool.put(c.getName(), c);
 	}
 
 }

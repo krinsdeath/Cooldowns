@@ -3,6 +3,7 @@ package net.krinsoft.cooldowns;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Timer;
 import net.krinsoft.cooldowns.interfaces.IPlayer;
 import net.krinsoft.cooldowns.listeners.CommandListener;
 import net.krinsoft.cooldowns.listeners.EntityListener;
@@ -39,6 +40,7 @@ public class Cooldowns extends JavaPlugin {
 	protected PluginManager manager;
 	protected PluginDescriptionFile info;
 	private static Settings settings;
+	private static Timer timer = new Timer(true);
 
 	// static stuff
 	protected static Plugin plugin;
@@ -63,6 +65,7 @@ public class Cooldowns extends JavaPlugin {
 		manager.registerEvent(Event.Type.PLAYER_JOIN, pListener, Event.Priority.Normal, this);
 		manager.registerEvent(Event.Type.PLAYER_QUIT, pListener, Event.Priority.Normal, this);
 		manager.registerEvent(Event.Type.PLAYER_KICK, pListener, Event.Priority.Normal, this);
+		manager.registerEvent(Event.Type.PLAYER_MOVE, pListener, Event.Priority.Normal, this);
 
 		// entity events
 		manager.registerEvent(Event.Type.ENTITY_DAMAGE, eListener, Event.Priority.Normal, this);
@@ -73,7 +76,7 @@ public class Cooldowns extends JavaPlugin {
 		// load the players
 		Persister.load();
 
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new CoolTimer(), 20, 20);
+		timer.schedule(new CoolTimer(), 1000, 1000);
 
 		// we're done!
 		log.info("Enabled.");
@@ -81,6 +84,7 @@ public class Cooldowns extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		timer.cancel();
 		Persister.save();
 		getServer().getScheduler().cancelTasks(this);
 		log.info("Disabled.");
@@ -170,5 +174,9 @@ public class Cooldowns extends JavaPlugin {
 
 	public static boolean getGlobal(String group, String key) {
 		return config.getBoolean("groups." + group + ".globals." + key, true);
+	}
+
+	public static Configuration getConfig() {
+		return config;
 	}
 }

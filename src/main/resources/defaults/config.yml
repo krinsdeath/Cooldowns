@@ -17,6 +17,7 @@ groups:
     interrupts:
       movement: true
       damage: true
+      command: true
     globals:
       cooldowns: true
       warmups: true
@@ -36,6 +37,7 @@ groups:
     interrupts:
       movement: true
       damage: true
+      command: true
     globals:
       cooldowns: true
       warmups: true
@@ -58,6 +60,7 @@ groups:
     interrupts:
       movement: false
       damage: false
+      command: true
     globals:
       cooldowns: true
       warmups: true
