@@ -21,7 +21,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 	// version ID
 	private final static long serialVersionUID = 119393L;
 
-	private class WarmCommand implements ICommand {
+	private class WarmCommand implements ICommand, Serializable {
 		private String command;
 		private String label;
 		private String flag;
@@ -146,6 +146,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 	}
 
 	public boolean getGlobal() {
+		global = Cooldowns.getGlobal(group, "warmup");
 		return global;
 	}
 
@@ -210,7 +211,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 			String tmp = "";
 			int wu = 0;
 			for (WarmCommand wc : commands) {
-				if (global && command) {
+				if (getGlobal() && command) {
 					cancelCommand(msg);
 					return false;
 				}

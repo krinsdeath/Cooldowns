@@ -149,6 +149,10 @@ public class Cooldowns extends JavaPlugin {
 		return plugin.getServer().getPlayer(name);
 	}
 
+	public static Player[] getPlayers() {
+		return plugin.getServer().getOnlinePlayers();
+	}
+
 	/**
 	 * Returns the configuration file for the localization specified
 	 * @param loc

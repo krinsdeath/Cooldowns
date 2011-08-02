@@ -1,6 +1,5 @@
 package net.krinsoft.cooldowns.listeners;
 
-import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.player.CoolPlayer;
 import net.krinsoft.cooldowns.player.PlayerManager;
 import net.krinsoft.cooldowns.player.WarmPlayer;

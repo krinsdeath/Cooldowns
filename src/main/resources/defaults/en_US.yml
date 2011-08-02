@@ -1,50 +1,49 @@
-# set any value to "null" to disable it entirely.
 plugin:
-  enabled: "Enabled."
-  disabled: "Disabled."
-  language: "American English"
-  locale_not_found: "No such locale exists."
-  locale_changed: "Language changed to American English."
-  help:
-    - '&b/<cmd> help &f- &aDisplays this help menu.'
-    - '&b/<cmd> loc [option] &f- &aSets your locale to'
-    - '--- &athe option provided, or lists available locales.'
-    - '&b/<cmd> setup &f- &aShows your settings.'
-    - '&b/<cmd> &f- &aLists your current cooldowns.'
-  setup:
-    - 'Your settings: (American English)'
-    - '&aGlobals&f:'
-    - '-- Warmups... &a<global_warm>'
-    - '-- Cooldowns... &a<global_cool>'
-    - '&aInterrupts&f:'
-    - '-- Movement... &a<movement>'
-    - '-- Commands... &a<commands>'
-    - '-- Damage... &a<damage> &f(&cnot implemented&f)'
+    enabled: "Enabled."
+    disabled: "Disabled."
+    language: "American English"
+    locale_not_found: "No such locale exists."
+    locale_changed: "Language changed to American English."
+    help:
+      - '&b/<cmd> help &f- &aDisplays this help menu.'
+      - '&b/<cmd> loc [option] &f- &aSets your locale to'
+      - '--- &athe option provided, or lists available locales.'
+      - '&b/<cmd> setup &f- &aShows your settings.'
+      - '&b/<cmd> &f- &aLists your current cooldowns.'
+    setup:
+      - 'Your settings: (American English)'
+      - '&aGlobals&f:'
+      - '-- Warmups... &a<global_warm>'
+      - '-- Cooldowns... &a<global_cool>'
+      - '&aInterrupts&f:'
+      - '-- Movement... &a<movement>'
+      - '-- Commands... &a<commands>'
+      - '-- Damage... &a<damage>'
 
 # set any _generic_ key to null to disable it
 # ------- #
 # warmups #
 # ------- #
 warmup:
-  start:
-    _generic_: "'&b<cmd>&f' is now warming up. (&b<wu>&f)"
-  status:
-    _generic_: "'&b<cmd>&f' is warming up. (&b<wu>&f)"
-  done:
-    _generic_: "You are no longer warming up '&b<cmd>&f'."
-  cancel:
-    _generic_: "&cYou cancelled '&3<cmd>&c'..."
-    _movement_: "&cYou moved and cancelled '&3<cmd>&c'..."
-    _damage_: "&cYou took damage, which cancelled '&3<cmd>&c'..."
+    start:
+        _generic_: "'&b<cmd>&f' is now warming up. (&b<wu>&f)"
+    status:
+        _generic_: "'&b<cmd>&f' is warming up. (&b<wu>&f)"
+    done:
+        _generic_: "You are no longer warming up '&b<cmd>&f'."
+    cancel:
+        _generic_: "&cYou cancelled '&3<cmd>&c'..."
+        _movement_: "&cYou moved and cancelled '&3<cmd>&c'..."
+        _damage_: "&cYou took damage, which cancelled '&3<cmd>&c'..."
 
 # --------- #
 # cooldowns #
 # --------- #
 cooldown:
-  start:
-    _generic_: null
-    # "'&b<cmd>&f' is now cooling down. (&b<cd>&f)"
-  status:
-    _generic_: "'&b<cmd>&f' is cooling down. (&b<cd>&f)"
-  done:
-    _generic_: "You are ready to use '&b<cmd>&f' again."
+    start:
+        _generic_: null
+        # "'&b<cmd>&f' is now cooling down. (&b<cd>&f)"
+    status:
+        _generic_: "'&b<cmd>&f' is cooling down. (&b<cd>&f)"
+    done:
+        _generic_: "You are ready to use '&b<cmd>&f' again."

@@ -1,12 +1,14 @@
 name: Cooldowns
 main: net.krinsoft.cooldowns.Cooldowns
 version: ${project.version}
-authors: [krinsdeath]
+author: krinsdeath
 
 commands:
-  cooldowns:
-    description: Allows setting of various options for this plugin
-    aliases: [cooldown, cd]
-    usage: |
-      /<command> - displays this menu
-      /<command> [loc|locale] [arg] - sets the user's locale to the specified argument
+    cooldowns:
+      description: Allows setting of various options for this plugin
+      aliases: [cooldown, cd]
+      usage: |
+        /<command> - Shows the user's cooldowns
+        /<command> help - displays this menu
+        /<command> locale [option] - sets the user's locale to the specified argument
+        /<command> setup - Shows the user's settings

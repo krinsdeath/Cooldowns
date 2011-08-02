@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import net.krinsoft.cooldowns.Cooldowns;
 import net.krinsoft.cooldowns.interfaces.IPlayer;
 import org.bukkit.entity.Player;
 
@@ -40,6 +41,9 @@ public class PlayerManager {
 		}
 		players.add(warm);
 		players.add(cool);
+		for (Player p : Cooldowns.getPlayers()) {
+			setOnline(p);
+		}
 	}
 
 	public static WarmPlayer getWarmPlayer(String name) {

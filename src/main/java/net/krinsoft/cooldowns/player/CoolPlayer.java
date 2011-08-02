@@ -21,7 +21,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 	// version ID
 	private final static long serialVersionUID = 11932L;
 
-	private class CoolCommand implements ICommand {
+	private class CoolCommand implements ICommand, Serializable {
 		private String command;
 		private String label;
 		private String flag;
@@ -97,6 +97,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 	}
 
 	public boolean getGlobal() {
+		global = Cooldowns.getGlobal(group, "cooldowns");
 		return global;
 	}
 
@@ -220,7 +221,7 @@ public class CoolPlayer implements Serializable, IPlayer {
 		String key = getCommandKey(label, flag);
 		if (key == null) { return false; }
 		String handle = ("/" + key.replaceAll("\\.", " ")).trim();
-		if (global && cooling) {
+		if (getGlobal() && cooling) {
 			sendMessage("status", msg);
 			return true;
 		}
@@ -229,7 +230,6 @@ public class CoolPlayer implements Serializable, IPlayer {
 				sendMessage("status", msg);
 				return true;
 			}
-			return false;
 		}
 		return false;
 	}
