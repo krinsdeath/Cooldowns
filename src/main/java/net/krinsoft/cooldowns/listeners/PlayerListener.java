@@ -25,11 +25,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 			}
 			PlayerManager.setOnline(event.getPlayer());
 		}
-		if (event.getMessage().equalsIgnoreCase("/sup")) {
-			System.out.println(PlayerManager.online().size() + " players online");
-			event.setCancelled(true);
-			return;
-		}
 		if (event.isCancelled()) {
 			return;
 		}
@@ -94,6 +89,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
 			if (!PlayerManager.getPlayer(event.getPlayer().getName())) {
 				PlayerManager.addPlayer(event.getPlayer().getName());
 			}
+            PlayerManager.updateGroup(event.getPlayer());
 			PlayerManager.setOnline(event.getPlayer());
 		}
 	}

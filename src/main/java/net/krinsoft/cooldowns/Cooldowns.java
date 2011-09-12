@@ -126,16 +126,21 @@ public class Cooldowns extends JavaPlugin {
 	 */
 	public static String getGroup(String name) {
 		Player player = plugin.getServer().getPlayer(name);
+		String group = "";
 		if (player == null) {
 			return null;
 		} else {
+			int priority = 0;
 			for (String key : config.getKeys("groups")) {
-				if (player.hasPermission("cooldowns." + key)) {
-					return key;
+				if (player.hasPermission("cooldowns." + key) || player.hasPermission("group." + key)) {
+					if (getConfig().getInt("groups." + key + ".priority", 0) >= priority) {
+						priority = getConfig().getInt("groups." + key + ".priority", 0);
+						group = key;
+					}
 				}
 			}
 		}
-		return "default";
+		return (group.isEmpty() ? "default" : group);
 	}
 
 	/**
@@ -161,7 +166,11 @@ public class Cooldowns extends JavaPlugin {
 	 * the localization configuration
 	 */
 	public static Configuration getLocale(String loc) {
-		return locales.get(loc);
+        if (locales.get(loc) != null) {
+            return locales.get(loc);
+        } else {
+            return locales.get("en_US");
+        }
 	}
 
 	public static void addLocale(String loc, File tmp) {

@@ -94,6 +94,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 	 */
 	private double x;
 	private double z;
+	private double y;
 
 	/**
 	 * A list of all currently warming commands on this player.
@@ -107,6 +108,10 @@ public class WarmPlayer implements Serializable, IPlayer {
 		setInterrupts();
 		locale = Cooldowns.getConfig().getString("plugin.default_locale");
 	}
+
+    protected void setGroup(String group) {
+        this.group = group;
+    }
 
 	private void setInterrupts() {
 		ConfigurationNode node = Cooldowns.getGroupNode(group, "interrupts");
@@ -131,6 +136,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 	public void setLocation(Location location) {
 		x = location.getX();
 		z = location.getZ();
+		y = location.getY();
 	}
 
 	public boolean locationHasChanged(Location location) {
@@ -139,6 +145,9 @@ public class WarmPlayer implements Serializable, IPlayer {
 				return true;
 			}
 			if ((int) location.getZ() != (int) z) {
+				return true;
+			}
+			if ((int) location.getY() != (int) y) {
 				return true;
 			}
 		}
@@ -157,14 +166,14 @@ public class WarmPlayer implements Serializable, IPlayer {
 		List<WarmCommand> tmp = commands;
 		WarmCommand wc = null;
 		synchronized (tmp) {
-			String def = Cooldowns.getLocale(locale).getString("warmup.done._generic_", "generic warmup message");
+			String def = getLocale().getString("warmup.done._generic_", "generic warmup message");
 			String msg = "", key = "", loc = "";
 			if (tmp.isEmpty()) { return; }
 			for (int i = 0; i < tmp.size(); i++) {
 				wc = tmp.get(i);
 				if (wc.getStatus()) {
 					key = getCommandKey(wc.label, wc.flag);
-					loc = Cooldowns.getLocale(locale).getString("warmup.done." + key, def);
+					loc = getLocale().getString("warmup.done." + key, def);
 					msg = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + loc;
 					msg = Messages.COMMAND.matcher(msg).replaceAll(wc.getHandle());
 					msg = Messages.LABEL.matcher(msg).replaceAll(wc.label);
@@ -206,8 +215,8 @@ public class WarmPlayer implements Serializable, IPlayer {
 		ConfigurationNode node = Cooldowns.getCommandNode(group, "warmup");
 		int warm = node.getInt(key, 0);
 		if (warm > 0) {
-			String def = Cooldowns.getLocale(locale).getString("warmup.status._generic_", "You are currently warming up '<cmd>'");
-			String loc = Cooldowns.getLocale(locale).getString("warmup.status." + key, def);
+			String def = getLocale().getString("warmup.status._generic_", "You are currently warming up '<cmd>'");
+			String loc = getLocale().getString("warmup.status." + key, def);
 			String tmp = "";
 			int wu = 0;
 			for (WarmCommand wc : commands) {
@@ -276,7 +285,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 	}
 
 	public void cancelCommand(String msg) {
-		String def = Cooldowns.getLocale(locale).getString("warmup.cancel._generic_");
+		String def = getLocale().getString("warmup.cancel._generic_");
 		String tmp = "";
 		int wu = 0;
 		if (commands.isEmpty()) {
@@ -294,7 +303,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 			WarmCommand wc = commands.get(i);
 			if (wc.getHandle().equalsIgnoreCase(handle)) {
 				if (def != null) {
-					tmp = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + Cooldowns.getLocale(locale).getString("warmup.cancel." + key, def);
+					tmp = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + getLocale().getString("warmup.cancel." + key, def);
 					wu = (int) ((wc.warmup - System.currentTimeMillis()) / 1000);
 					tmp = Messages.COMMAND.matcher(tmp).replaceAll(wc.getHandle());
 					tmp = Messages.LABEL.matcher(tmp).replaceAll(wc.label);
@@ -430,6 +439,7 @@ public class WarmPlayer implements Serializable, IPlayer {
 		String def = Cooldowns.getLocale(locale).getString("warmup."+field+"._generic_");
 		if (def == null) { return; }
 		String loc = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + Cooldowns.getLocale(locale).getString("warmup."+field+"." + key, def);
+        System.out.println("Localization for '"+key+"':" + loc);
 		loc = Messages.COMMAND.matcher(loc).replaceAll(msg);
 		loc = Messages.LABEL.matcher(loc).replaceAll(label);
 		loc = Messages.FLAG.matcher(loc).replaceAll(flag);

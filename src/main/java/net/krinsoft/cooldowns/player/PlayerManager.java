@@ -42,6 +42,7 @@ public class PlayerManager {
 		players.add(warm);
 		players.add(cool);
 		for (Player p : Cooldowns.getPlayers()) {
+            updateGroup(p);
 			setOnline(p);
 		}
 	}
@@ -55,11 +56,7 @@ public class PlayerManager {
 	}
 
 	public static boolean getPlayer(String name) {
-		if (cool.get(name) != null) {
-			return true;
-		} else {
-			return false;
-		}
+		return (cool.get(name) != null);
 	}
 
 	public static void addPlayer(String name) {
@@ -85,6 +82,13 @@ public class PlayerManager {
 		warm.put(w.getName(), w);
 		cool.put(c.getName(), c);
 	}
+
+    public static void updateGroup(Player p) {
+        String g = Cooldowns.getGroup(p.getName());
+        System.out.println("Group for " + p.getName() + "... " + g);
+        ((WarmPlayer)warm.get(p.getName())).setGroup(g);
+        ((CoolPlayer)cool.get(p.getName())).setGroup(g);
+    }
 
 	public static void clean() {
 		players.clear();

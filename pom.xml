@@ -5,10 +5,11 @@
     <groupId>net.krinsoft</groupId>
     <artifactId>Cooldowns</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1</version>
+    <version>1.1</version>
     <name>Cooldowns</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.number>b0</project.build.number>
     </properties>
     <build>
         <plugins>
@@ -35,12 +36,6 @@
         </resources>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>

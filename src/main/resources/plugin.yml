@@ -1,6 +1,6 @@
 name: Cooldowns
 main: net.krinsoft.cooldowns.Cooldowns
-version: ${project.version}
+version: ${project.version}-${project.build.number}
 author: krinsdeath
 
 commands:

@@ -11,6 +11,7 @@ plugin:
 groups:
     # -----------------
     default:
+        priority: 1
         # prefix applies to messages sent by this plugin to the player, such as status messages
         # it does not change chat settings, and should not interfere with any other plugins
         prefix: '[default] '
@@ -30,7 +31,8 @@ groups:
             cooldown:
                 _all_: 5
     # -----------------
-    users:
+    user:
+        priority: 2
         prefix: '[user] '
         interrupts:
             movement: true
@@ -51,7 +53,8 @@ groups:
                     home: 60
                     _all_: 120
     # -----------------
-    admins:
+    admin:
+        priority: 3
         prefix: '[admin] '
         interrupts:
             movement: false

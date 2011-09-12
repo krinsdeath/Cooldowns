@@ -96,6 +96,10 @@ public class CoolPlayer implements Serializable, IPlayer {
 		locale = "en_US";
 	}
 
+    protected void setGroup(String group) {
+        this.group = group;
+    }
+
 	public boolean getGlobal() {
 		global = Cooldowns.getGlobal(group, "cooldowns");
 		return global;
@@ -108,14 +112,14 @@ public class CoolPlayer implements Serializable, IPlayer {
 		List<CoolCommand> tmp = commands;
 		CoolCommand cc = null;
 		synchronized (tmp) {
-			String def = Cooldowns.getLocale(locale).getString("cooldown.done._generic_", "generic cooldown message");
+			String def = getLocale().getString("cooldown.done._generic_", "generic cooldown message");
 			String msg = "", loc = "", key = "";
 			if (tmp.isEmpty()) { return; }
 			for (int i = 0; i < tmp.size(); i++) {
 				cc = tmp.get(i);
 				if (cc.getStatus()) {
 					key = getCommandKey(cc.label, cc.flag);
-					loc = Cooldowns.getLocale(locale).getString("cooldown.done." + key, def);
+					loc = getLocale().getString("cooldown.done." + key, def);
 					msg = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + loc;
 					msg = Messages.COMMAND.matcher(msg).replaceAll(cc.getHandle());
 					msg = Messages.LABEL.matcher(msg).replaceAll(cc.label);
@@ -156,8 +160,8 @@ public class CoolPlayer implements Serializable, IPlayer {
 		ConfigurationNode node = Cooldowns.getCommandNode(group, "cooldown");
 		int cool = node.getInt(key, 0);
 		if (cool > 0) {
-			String def = Cooldowns.getLocale(locale).getString("cooldown.status._generic_", "generic cooldown message");
-			String loc = Cooldowns.getLocale(locale).getString("cooldown.status." + key, def);
+			String def = getLocale().getString("cooldown.status._generic_", "generic cooldown message");
+			String loc = getLocale().getString("cooldown.status." + key, def);
 			String tmp = "";
 			int cd = 0;
 			for (CoolCommand cc : commands) {
@@ -279,9 +283,10 @@ public class CoolPlayer implements Serializable, IPlayer {
 			}
 		}
 		if (cd == 0) { return; }
-		String def = Cooldowns.getLocale(locale).getString("cooldown."+field+"._generic_");
+		String def = getLocale().getString("cooldown."+field+"._generic_");
 		if (def == null) { return; }
-		String loc = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + Cooldowns.getLocale(locale).getString("cooldown."+field+"." + key, def);
+		String loc = Cooldowns.getConfig().getString("groups."+group+".prefix", "[" + group + "] ") + getLocale().getString("cooldown."+field+"." + key, def);
+        System.out.println("Localization for '"+key+"':" + loc);
 		loc = Messages.COMMAND.matcher(loc).replaceAll(msg);
 		loc = Messages.LABEL.matcher(loc).replaceAll(label);
 		loc = Messages.FLAG.matcher(loc).replaceAll(flag);
